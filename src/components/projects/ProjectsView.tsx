@@ -139,7 +139,7 @@ export const ProjectsView = () => {
         <h3 className="text-lg font-semibold mb-4 text-foreground">Visualização Kanban</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {["Backlog", "Em Progresso", "Revisão", "Concluído"].map((column) => (
-            <div key={column} className="bg-accent/30 rounded-lg p-4 min-h-[200px]">
+            <div key={column} className="bg-muted rounded-lg p-4 min-h-[200px]">
               <h4 className="font-medium text-sm text-muted-foreground mb-3">{column}</h4>
               <div className="space-y-2">
                 {column === "Em Progresso" && (

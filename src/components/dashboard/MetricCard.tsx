@@ -20,7 +20,7 @@ export const MetricCard = ({
   iconColor = "text-primary"
 }: MetricCardProps) => {
   return (
-    <Card className="p-6 shadow-card hover:shadow-soft transition-shadow duration-200">
+    <Card className="p-6 shadow-card hover:shadow-soft transition-shadow duration-200 border border-border">
       <div className="flex items-start justify-between">
         <div className="space-y-2">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
@@ -36,7 +36,7 @@ export const MetricCard = ({
             </p>
           )}
         </div>
-        <div className={cn("p-3 rounded-lg bg-accent/50", iconColor)}>
+        <div className={cn("p-3 rounded-lg bg-muted", iconColor)}>
           <Icon className="w-5 h-5" />
         </div>
       </div>

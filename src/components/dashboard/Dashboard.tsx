@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 export const Dashboard = () => {
   return (
     <div className="space-y-6">
-      {/* Welcome Section */}
-      <div className="bg-gradient-primary text-white p-8 rounded-xl shadow-soft">
-        <h1 className="text-3xl font-bold mb-2">Bem-vindo à Agência360</h1>
-        <p className="text-white/90 text-lg">
+      {/* Welcome Section - mais sutil */}
+      <div className="bg-card border border-border p-8 rounded-xl shadow-card">
+        <h1 className="text-3xl font-bold mb-2 text-foreground">Bem-vindo à Agência360</h1>
+        <p className="text-muted-foreground text-lg">
           Gerencie seus projetos, clientes e finanças em um só lugar
         </p>
       </div>
@@ -22,7 +22,7 @@ export const Dashboard = () => {
           change="+12% vs mês anterior"
           changeType="positive"
           icon={DollarSign}
-          iconColor="text-success"
+          iconColor="text-muted-foreground"
         />
         <MetricCard
           title="Projetos Ativos"
@@ -79,21 +79,21 @@ export const Dashboard = () => {
         <Card className="p-6 shadow-card">
           <h3 className="text-lg font-semibold mb-4 text-foreground">Atividade Recente</h3>
           <div className="space-y-4">
-            <div className="flex items-start gap-3 p-3 bg-accent/30 rounded-lg">
+            <div className="flex items-start gap-3 p-3 bg-muted rounded-lg">
               <div className="w-2 h-2 bg-success rounded-full mt-2"></div>
               <div>
                 <p className="font-medium text-sm">Projeto "Website Empresa X" concluído</p>
                 <p className="text-xs text-muted-foreground">Há 2 horas</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-3 bg-accent/30 rounded-lg">
+            <div className="flex items-start gap-3 p-3 bg-muted rounded-lg">
               <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
               <div>
                 <p className="font-medium text-sm">Novo cliente "Tech Solutions" adicionado</p>
                 <p className="text-xs text-muted-foreground">Ontem</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-3 bg-accent/30 rounded-lg">
+            <div className="flex items-start gap-3 p-3 bg-muted rounded-lg">
               <div className="w-2 h-2 bg-warning rounded-full mt-2"></div>
               <div>
                 <p className="font-medium text-sm">Pagamento de R$ 3.500 recebido</p>
