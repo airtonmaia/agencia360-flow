@@ -36,7 +36,7 @@ export const MetricCard = ({
             </p>
           )}
         </div>
-        <div className={cn("p-3 rounded-lg bg-muted", iconColor)}>
+        <div className={cn("p-3 rounded-lg bg-gradient-accent", iconColor)}>
           <Icon className="w-5 h-5" />
         </div>
       </div>

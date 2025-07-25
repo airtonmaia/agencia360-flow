@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 export const Dashboard = () => {
   return (
     <div className="space-y-6">
-      {/* Welcome Section - mais sutil */}
-      <div className="bg-card border border-border p-8 rounded-xl shadow-card">
-        <h1 className="text-3xl font-bold mb-2 text-foreground">Bem-vindo à Agência360</h1>
-        <p className="text-muted-foreground text-lg">
+      {/* Welcome Section - com gradiente */}
+      <div className="bg-gradient-primary text-white p-8 rounded-xl shadow-soft">
+        <h1 className="text-3xl font-bold mb-2">Bem-vindo à Agência360</h1>
+        <p className="text-white/90 text-lg">
           Gerencie seus projetos, clientes e finanças em um só lugar
         </p>
       </div>

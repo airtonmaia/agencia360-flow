@@ -41,7 +41,7 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
                   "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200",
                   "hover:bg-sidebar-accent",
                   activeTab === item.id
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                    ? "bg-gradient-button text-white shadow-sm"
                     : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                 )}
               >

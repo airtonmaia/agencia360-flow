@@ -59,7 +59,7 @@ export const ClientsView = () => {
           <h1 className="text-2xl font-bold text-foreground">Clientes</h1>
           <p className="text-muted-foreground">Gerencie suas relações comerciais</p>
         </div>
-        <Button className="bg-primary hover:bg-primary-hover">
+        <Button className="bg-gradient-button hover:opacity-90 text-white border-0">
           <Plus className="w-4 h-4 mr-2" />
           Novo Cliente
         </Button>

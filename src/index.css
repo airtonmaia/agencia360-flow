@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Minimal color scheme inspired by the reference */
+    /* Minimal color scheme with purple/orange accents */
     --background: 0 0% 98%;
     --foreground: 240 10% 20%;
 
@@ -18,10 +18,10 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 20%;
 
-    /* Very subtle primary - minimal purple accent */
-    --primary: 240 10% 20%;
+    /* Purple gradient for important elements */
+    --primary: 280 50% 60%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 240 10% 15%;
+    --primary-hover: 280 50% 55%;
 
     /* Light secondary colors */
     --secondary: 240 5% 96%;
@@ -32,10 +32,10 @@ All colors MUST be HSL.
     --muted-foreground: 240 4% 50%;
 
     /* Minimal accent */
-    --accent: 240 3% 94%;
-    --accent-foreground: 240 8% 25%;
+    --accent: 280 30% 95%;
+    --accent-foreground: 280 50% 25%;
 
-    /* Status colors - very subtle */
+    /* Status colors with some color */
     --destructive: 0 50% 50%;
     --destructive-foreground: 0 0% 100%;
     --success: 120 40% 45%;
@@ -44,7 +44,7 @@ All colors MUST be HSL.
     /* Minimal borders */
     --border: 240 6% 90%;
     --input: 240 6% 92%;
-    --ring: 240 10% 80%;
+    --ring: 280 50% 60%;
 
     /* Smooth radius */
     --radius: 0.5rem;
@@ -52,18 +52,20 @@ All colors MUST be HSL.
     /* White sidebar like in reference */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 240 10% 20%;
-    --sidebar-primary: 240 8% 25%;
+    --sidebar-primary: 280 50% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 96%;
+    --sidebar-accent: 280 20% 96%;
     --sidebar-accent-foreground: 240 8% 25%;
     --sidebar-border: 240 6% 90%;
-    --sidebar-ring: 240 10% 80%;
+    --sidebar-ring: 280 50% 60%;
 
-    /* Minimal effects */
-    --gradient-primary: linear-gradient(135deg, hsl(240 8% 25%), hsl(240 6% 30%));
+    /* Beautiful gradients for important elements */
+    --gradient-primary: linear-gradient(135deg, hsl(280 60% 60%), hsl(320 70% 65%), hsl(30 80% 65%));
+    --gradient-button: linear-gradient(135deg, hsl(280 55% 58%), hsl(320 65% 62%));
+    --gradient-accent: linear-gradient(135deg, hsl(280 40% 92%), hsl(320 30% 95%));
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 99%), hsl(240 3% 97%));
-    --shadow-soft: 0 1px 3px hsl(240 10% 80% / 0.1);
-    --shadow-card: 0 1px 2px hsl(240 10% 70% / 0.08);
+    --shadow-soft: 0 2px 8px hsl(280 30% 70% / 0.15);
+    --shadow-card: 0 1px 3px hsl(240 10% 70% / 0.08);
   }
 
   .dark {
