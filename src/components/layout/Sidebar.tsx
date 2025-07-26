@@ -1,5 +1,6 @@
-import { LayoutDashboard, Users, FolderKanban, CreditCard, Clock, Settings, HelpCircle } from "lucide-react";
+import { LayoutDashboard, Users, FolderKanban, CreditCard, Clock, Settings, HelpCircle, ChevronDown, ChevronRight, BarChart3, TrendingUp, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface SidebarProps {
   activeTab: string;
@@ -10,7 +11,16 @@ const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "projects", label: "Projetos", icon: FolderKanban },
   { id: "clients", label: "Clientes", icon: Users },
-  { id: "financial", label: "Financeiro", icon: CreditCard },
+  { 
+    id: "financial", 
+    label: "Financeiro", 
+    icon: CreditCard,
+    subItems: [
+      { id: "financial-overview", label: "Visão Geral", icon: BarChart3 },
+      { id: "financial-cashflow", label: "Fluxo de Caixa", icon: TrendingUp },
+      { id: "financial-loans", label: "Empréstimos", icon: Wallet },
+    ]
+  },
   { id: "time", label: "Produtividade", icon: Clock },
 ];
 
@@ -20,6 +30,24 @@ const bottomItems = [
 ];
 
 export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
+  const [expandedItems, setExpandedItems] = useState<string[]>(['financial']);
+
+  const toggleExpanded = (itemId: string) => {
+    setExpandedItems(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+
+  const isFinancialSubItem = (tabId: string) => {
+    return tabId.startsWith('financial-');
+  };
+
+  const shouldHighlightFinancial = () => {
+    return activeTab === 'financial' || isFinancialSubItem(activeTab);
+  };
+
   return (
     <div className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
       {/* Header */}
@@ -33,21 +61,69 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
         <nav className="space-y-2 px-4">
           {menuItems.map((item) => {
             const Icon = item.icon;
+            const hasSubItems = item.subItems && item.subItems.length > 0;
+            const isExpanded = expandedItems.includes(item.id);
+            const isActive = item.id === 'financial' ? shouldHighlightFinancial() : activeTab === item.id;
+
             return (
-              <button
-                key={item.id}
-                onClick={() => onTabChange(item.id)}
-                className={cn(
-                  "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200",
-                  "hover:bg-sidebar-accent",
-                  activeTab === item.id
-                    ? "bg-gradient-button text-white shadow-sm"
-                    : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+              <div key={item.id}>
+                <button
+                  onClick={() => {
+                    if (hasSubItems) {
+                      toggleExpanded(item.id);
+                      if (!isExpanded) {
+                        onTabChange('financial-overview'); // Default to first sub-item
+                      }
+                    } else {
+                      onTabChange(item.id);
+                    }
+                  }}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200",
+                    "hover:bg-sidebar-accent",
+                    isActive
+                      ? "bg-gradient-button text-white shadow-sm"
+                      : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                  )}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="font-medium flex-1">{item.label}</span>
+                  {hasSubItems && (
+                    <div className="transition-transform duration-200">
+                      {isExpanded ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )}
+                    </div>
+                  )}
+                </button>
+
+                {/* Sub-items */}
+                {hasSubItems && isExpanded && (
+                  <div className="ml-4 mt-2 space-y-1">
+                    {item.subItems.map((subItem) => {
+                      const SubIcon = subItem.icon;
+                      return (
+                        <button
+                          key={subItem.id}
+                          onClick={() => onTabChange(subItem.id)}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-all duration-200 text-sm",
+                            "hover:bg-sidebar-accent",
+                            activeTab === subItem.id
+                              ? "bg-gradient-button text-white shadow-sm"
+                              : "text-sidebar-foreground/80 hover:text-sidebar-accent-foreground"
+                          )}
+                        >
+                          <SubIcon className="w-4 h-4" />
+                          <span>{subItem.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
-              </button>
+              </div>
             );
           })}
         </nav>

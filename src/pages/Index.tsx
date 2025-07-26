@@ -4,6 +4,9 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { ProjectsView } from "@/components/projects/ProjectsView";
 import { ClientsView } from "@/components/clients/ClientsView";
+import { FinancialOverview } from "@/components/financial/FinancialOverview";
+import { CashFlow } from "@/components/financial/CashFlow";
+import { Loans } from "@/components/financial/Loans";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -16,13 +19,14 @@ const Index = () => {
         return <ProjectsView />;
       case "clients":
         return <ClientsView />;
+      case "financial-overview":
+        return <FinancialOverview />;
+      case "financial-cashflow":
+        return <CashFlow />;
+      case "financial-loans":
+        return <Loans />;
       case "financial":
-        return (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold mb-4">Módulo Financeiro</h2>
-            <p className="text-muted-foreground">Em desenvolvimento</p>
-          </div>
-        );
+        return <FinancialOverview />;
       case "time":
         return (
           <div className="text-center py-20">
