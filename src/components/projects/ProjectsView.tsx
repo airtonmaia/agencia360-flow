@@ -18,6 +18,8 @@ import {
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
+  horizontalListSortingStrategy,
+  arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -123,6 +125,131 @@ const DraggableProject = ({ project }: { project: Project }) => {
         </div>
       </div>
     </Card>
+  );
+};
+
+// Componente para coluna arrastável
+const DraggableColumn = ({ 
+  column, 
+  projects, 
+  editingColumn, 
+  editingColumnValue, 
+  setEditingColumnValue,
+  startEditingColumn,
+  saveColumnEdit,
+  cancelColumnEdit,
+  deleteColumn,
+  getProjectsByStatus
+}: {
+  column: string;
+  projects: Project[];
+  editingColumn: string | null;
+  editingColumnValue: string;
+  setEditingColumnValue: (value: string) => void;
+  startEditingColumn: (column: string) => void;
+  saveColumnEdit: () => void;
+  cancelColumnEdit: () => void;
+  deleteColumn: (column: string) => void;
+  getProjectsByStatus: (status: string) => Project[];
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: column });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-gray-50 rounded-lg p-4 min-w-[280px] max-w-[280px] ${
+        isDragging ? 'opacity-50' : ''
+      }`}
+    >
+      {/* Column Header */}
+      <div className="flex items-center justify-between mb-4">
+        {editingColumn === column ? (
+          <div className="flex items-center gap-2 flex-1">
+            <Input
+              value={editingColumnValue}
+              onChange={(e) => setEditingColumnValue(e.target.value)}
+              className="text-sm font-medium h-8"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') saveColumnEdit();
+                if (e.key === 'Escape') cancelColumnEdit();
+              }}
+              autoFocus
+            />
+            <Button size="sm" variant="ghost" onClick={saveColumnEdit}>
+              ✓
+            </Button>
+            <Button size="sm" variant="ghost" onClick={cancelColumnEdit}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        ) : (
+          <>
+            <h4 
+              {...attributes}
+              {...listeners}
+              className="font-medium text-sm text-foreground cursor-grab active:cursor-grabbing hover:bg-gray-100 px-2 py-1 rounded flex-1"
+              onDoubleClick={() => startEditingColumn(column)}
+            >
+              {column}
+            </h4>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs">
+                {getProjectsByStatus(column).length}
+              </Badge>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteColumn(column);
+                }}
+                className="w-6 h-6 p-0 hover:bg-red-100 hover:text-red-600"
+              >
+                <Trash2 className="w-3 h-3" />
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Droppable Area */}
+      <div
+        id={column}
+        className="space-y-3 min-h-[400px]"
+        style={{ minHeight: '400px' }}
+      >
+        <SortableContext
+          items={getProjectsByStatus(column).map(p => p.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {getProjectsByStatus(column).map((project) => (
+            <DraggableProject key={project.id} project={project} />
+          ))}
+        </SortableContext>
+
+        {/* Add new project button */}
+        <Button
+          variant="ghost"
+          className="w-full justify-center text-muted-foreground hover:text-foreground border-2 border-dashed border-gray-300 hover:border-gray-400 h-auto py-3"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Adicionar projeto
+        </Button>
+      </div>
+    </div>
   );
 };
 
@@ -268,6 +395,26 @@ export const ProjectsView = () => {
 
     if (!over || !selectedBoard) return;
 
+    // Verificar se é uma coluna sendo arrastada
+    if (selectedBoard.columns.includes(active.id as string)) {
+      const activeIndex = selectedBoard.columns.indexOf(active.id as string);
+      const overIndex = selectedBoard.columns.indexOf(over.id as string);
+
+      if (activeIndex !== overIndex) {
+        const reorderedColumns = arrayMove(selectedBoard.columns, activeIndex, overIndex);
+        const updatedBoard = { ...selectedBoard, columns: reorderedColumns };
+        
+        setSelectedBoard(updatedBoard);
+        
+        const updatedBoards = boards.map(board =>
+          board.id === selectedBoard.id ? updatedBoard : board
+        );
+        setBoards(updatedBoards);
+      }
+      return;
+    }
+
+    // Verificar se é um projeto sendo arrastado
     const activeProject = selectedBoard.projects.find(p => p.id === active.id);
     const overColumn = over.id as string;
 
@@ -530,83 +677,26 @@ export const ProjectsView = () => {
         onDragEnd={handleDragEnd}
       >
         <div className="flex gap-6 overflow-x-auto pb-4">
-          {selectedBoard?.columns.map((column) => (
-            <div
-              key={column}
-              id={column}
-              className="bg-gray-50 rounded-lg p-4 min-w-[280px] max-w-[280px]"
-            >
-              {/* Column Header */}
-              <div className="flex items-center justify-between mb-4">
-                {editingColumn === column ? (
-                  <div className="flex items-center gap-2 flex-1">
-                    <Input
-                      value={editingColumnValue}
-                      onChange={(e) => setEditingColumnValue(e.target.value)}
-                      className="text-sm font-medium h-8"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') saveColumnEdit();
-                        if (e.key === 'Escape') cancelColumnEdit();
-                      }}
-                      autoFocus
-                    />
-                    <Button size="sm" variant="ghost" onClick={saveColumnEdit}>
-                      ✓
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={cancelColumnEdit}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <h4 
-                      className="font-medium text-sm text-foreground cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
-                      onClick={() => startEditingColumn(column)}
-                    >
-                      {column}
-                    </h4>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {getProjectsByStatus(column).length}
-                      </Badge>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => deleteColumn(column)}
-                        className="w-6 h-6 p-0 hover:bg-red-100 hover:text-red-600"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Droppable Area */}
-              <div
-                className="space-y-3 min-h-[400px]"
-                style={{ minHeight: '400px' }}
-              >
-                <SortableContext
-                  items={getProjectsByStatus(column).map(p => p.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {getProjectsByStatus(column).map((project) => (
-                    <DraggableProject key={project.id} project={project} />
-                  ))}
-                </SortableContext>
-
-                {/* Add new project button */}
-                <Button
-                  variant="ghost"
-                  className="w-full justify-center text-muted-foreground hover:text-foreground border-2 border-dashed border-gray-300 hover:border-gray-400 h-auto py-3"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar projeto
-                </Button>
-              </div>
-            </div>
-          ))}
+          <SortableContext
+            items={selectedBoard?.columns || []}
+            strategy={horizontalListSortingStrategy}
+          >
+            {selectedBoard?.columns.map((column) => (
+              <DraggableColumn
+                key={column}
+                column={column}
+                projects={selectedBoard.projects}
+                editingColumn={editingColumn}
+                editingColumnValue={editingColumnValue}
+                setEditingColumnValue={setEditingColumnValue}
+                startEditingColumn={startEditingColumn}
+                saveColumnEdit={saveColumnEdit}
+                cancelColumnEdit={cancelColumnEdit}
+                deleteColumn={deleteColumn}
+                getProjectsByStatus={getProjectsByStatus}
+              />
+            ))}
+          </SortableContext>
 
           {/* Add New Column */}
           <div className="min-w-[280px] max-w-[280px]">
