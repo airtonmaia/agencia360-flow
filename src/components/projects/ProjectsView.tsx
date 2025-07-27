@@ -1,9 +1,25 @@
-import { Plus, Filter, Search, MoreHorizontal, Edit, Trash2, ArrowLeft } from "lucide-react";
+import { Plus, Filter, Search, MoreHorizontal, Edit, Trash2, ArrowLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface Project {
   id: number;
@@ -24,6 +40,91 @@ interface Board {
   projects: Project[];
   columns: string[];
 }
+
+// Componente para projeto arrastável
+const DraggableProject = ({ project }: { project: Project }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: project.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "Alta": return "bg-destructive/20 text-destructive";
+      case "Média": return "bg-warning/20 text-warning";
+      case "Baixa": return "bg-success/20 text-success";
+      default: return "bg-muted text-muted-foreground";
+    }
+  };
+
+  return (
+    <Card 
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`p-4 bg-white transition-shadow cursor-grab active:cursor-grabbing ${
+        isDragging ? 'opacity-50 shadow-lg' : 'hover:shadow-md'
+      }`}
+    >
+      <div className="space-y-3">
+        <h5 className="font-medium text-sm text-foreground line-clamp-2">
+          {project.name}
+        </h5>
+        
+        <div className="flex items-center gap-2">
+          <Badge className={`${getPriorityColor(project.priority)} text-xs`}>
+            {project.priority}
+          </Badge>
+        </div>
+        
+        <div className="space-y-1">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-muted-foreground">Progresso</span>
+            <span className="text-xs font-medium">{project.progress}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-1.5">
+            <div 
+              className="bg-gradient-button h-1.5 rounded-full transition-all duration-300"
+              style={{ width: `${project.progress}%` }}
+            ></div>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">{project.client}</span>
+          <span className="text-muted-foreground">{project.dueDate}</span>
+        </div>
+        
+        <div className="flex -space-x-1">
+          {project.team.slice(0, 3).map((member, idx) => (
+            <div 
+              key={idx}
+              className="w-6 h-6 rounded-full bg-gradient-button flex items-center justify-center text-white text-xs font-medium border-2 border-white"
+              title={member}
+            >
+              {member.charAt(0)}
+            </div>
+          ))}
+          {project.team.length > 3 && (
+            <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs font-medium border-2 border-white">
+              +{project.team.length - 3}
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+};
 
 export const ProjectsView = () => {
   const [currentView, setCurrentView] = useState<'boards' | 'board'>('boards');
@@ -82,6 +183,16 @@ export const ProjectsView = () => {
   const [newBoardName, setNewBoardName] = useState("");
   const [newBoardColor, setNewBoardColor] = useState("bg-gradient-to-br from-blue-500 to-purple-600");
   const [showNewBoardForm, setShowNewBoardForm] = useState(false);
+  
+  // Estados para drag and drop
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor));
+  
+  // Estados para gerenciamento de colunas
+  const [editingColumn, setEditingColumn] = useState<string | null>(null);
+  const [editingColumnValue, setEditingColumnValue] = useState("");
+  const [newColumnName, setNewColumnName] = useState("");
+  const [showNewColumnForm, setShowNewColumnForm] = useState(false);
   
   const boardColors = [
     "bg-gradient-to-br from-blue-500 to-purple-600",
@@ -142,6 +253,117 @@ export const ProjectsView = () => {
   const getProjectsByStatus = (status: string) => {
     if (!selectedBoard) return [];
     return selectedBoard.projects.filter(project => project.status === status);
+  };
+
+  // Funções para drag and drop
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const project = selectedBoard?.projects.find(p => p.id === active.id);
+    setActiveProject(project || null);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveProject(null);
+
+    if (!over || !selectedBoard) return;
+
+    const activeProject = selectedBoard.projects.find(p => p.id === active.id);
+    const overColumn = over.id as string;
+
+    if (activeProject && activeProject.status !== overColumn) {
+      const updatedProjects = selectedBoard.projects.map(project =>
+        project.id === activeProject.id 
+          ? { ...project, status: overColumn }
+          : project
+      );
+
+      const updatedBoard = { ...selectedBoard, projects: updatedProjects };
+      setSelectedBoard(updatedBoard);
+
+      const updatedBoards = boards.map(board =>
+        board.id === selectedBoard.id ? updatedBoard : board
+      );
+      setBoards(updatedBoards);
+    }
+  };
+
+  // Funções para gerenciamento de colunas
+  const startEditingColumn = (column: string) => {
+    setEditingColumn(column);
+    setEditingColumnValue(column);
+  };
+
+  const saveColumnEdit = () => {
+    if (!selectedBoard || !editingColumn || !editingColumnValue.trim()) return;
+
+    const updatedColumns = selectedBoard.columns.map(col =>
+      col === editingColumn ? editingColumnValue.trim() : col
+    );
+
+    const updatedProjects = selectedBoard.projects.map(project =>
+      project.status === editingColumn 
+        ? { ...project, status: editingColumnValue.trim() }
+        : project
+    );
+
+    const updatedBoard = { 
+      ...selectedBoard, 
+      columns: updatedColumns, 
+      projects: updatedProjects 
+    };
+    
+    setSelectedBoard(updatedBoard);
+    
+    const updatedBoards = boards.map(board =>
+      board.id === selectedBoard.id ? updatedBoard : board
+    );
+    setBoards(updatedBoards);
+
+    setEditingColumn(null);
+    setEditingColumnValue("");
+  };
+
+  const cancelColumnEdit = () => {
+    setEditingColumn(null);
+    setEditingColumnValue("");
+  };
+
+  const deleteColumn = (columnToDelete: string) => {
+    if (!selectedBoard) return;
+
+    const updatedColumns = selectedBoard.columns.filter(col => col !== columnToDelete);
+    const updatedProjects = selectedBoard.projects.filter(project => project.status !== columnToDelete);
+
+    const updatedBoard = { 
+      ...selectedBoard, 
+      columns: updatedColumns, 
+      projects: updatedProjects 
+    };
+    
+    setSelectedBoard(updatedBoard);
+    
+    const updatedBoards = boards.map(board =>
+      board.id === selectedBoard.id ? updatedBoard : board
+    );
+    setBoards(updatedBoards);
+  };
+
+  const addNewColumn = () => {
+    if (!selectedBoard || !newColumnName.trim()) return;
+
+    const updatedColumns = [...selectedBoard.columns, newColumnName.trim()];
+    const updatedBoard = { ...selectedBoard, columns: updatedColumns };
+    
+    setSelectedBoard(updatedBoard);
+    
+    const updatedBoards = boards.map(board =>
+      board.id === selectedBoard.id ? updatedBoard : board
+    );
+    setBoards(updatedBoards);
+
+    setNewColumnName("");
+    setShowNewColumnForm(false);
   };
 
   if (currentView === 'boards') {
@@ -302,80 +524,143 @@ export const ProjectsView = () => {
       </div>
 
       {/* Kanban Board */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {selectedBoard?.columns.map((column) => (
-          <div key={column} className="bg-gray-50 rounded-lg p-4 min-h-[500px]">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="font-medium text-sm text-foreground">{column}</h4>
-              <Badge variant="secondary" className="text-xs">
-                {getProjectsByStatus(column).length}
-              </Badge>
-            </div>
-            
-            <div className="space-y-3">
-              {getProjectsByStatus(column).map((project) => (
-                <Card key={project.id} className="p-4 bg-white hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="space-y-3">
-                    <h5 className="font-medium text-sm text-foreground line-clamp-2">
-                      {project.name}
-                    </h5>
-                    
-                    <div className="flex items-center gap-2">
-                      <Badge className={`${getPriorityColor(project.priority)} text-xs`}>
-                        {project.priority}
-                      </Badge>
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs text-muted-foreground">Progresso</span>
-                        <span className="text-xs font-medium">{project.progress}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-1.5">
-                        <div 
-                          className="bg-gradient-button h-1.5 rounded-full transition-all duration-300"
-                          style={{ width: `${project.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">{project.client}</span>
-                      <span className="text-muted-foreground">{project.dueDate}</span>
-                    </div>
-                    
-                    <div className="flex -space-x-1">
-                      {project.team.slice(0, 3).map((member, idx) => (
-                        <div 
-                          key={idx}
-                          className="w-6 h-6 rounded-full bg-gradient-button flex items-center justify-center text-white text-xs font-medium border-2 border-white"
-                          title={member}
-                        >
-                          {member.charAt(0)}
-                        </div>
-                      ))}
-                      {project.team.length > 3 && (
-                        <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs font-medium border-2 border-white">
-                          +{project.team.length - 3}
-                        </div>
-                      )}
-                    </div>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex gap-6 overflow-x-auto pb-4">
+          {selectedBoard?.columns.map((column) => (
+            <div
+              key={column}
+              id={column}
+              className="bg-gray-50 rounded-lg p-4 min-w-[280px] max-w-[280px]"
+            >
+              {/* Column Header */}
+              <div className="flex items-center justify-between mb-4">
+                {editingColumn === column ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <Input
+                      value={editingColumnValue}
+                      onChange={(e) => setEditingColumnValue(e.target.value)}
+                      className="text-sm font-medium h-8"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') saveColumnEdit();
+                        if (e.key === 'Escape') cancelColumnEdit();
+                      }}
+                      autoFocus
+                    />
+                    <Button size="sm" variant="ghost" onClick={saveColumnEdit}>
+                      ✓
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={cancelColumnEdit}>
+                      <X className="w-4 h-4" />
+                    </Button>
                   </div>
-                </Card>
-              ))}
-              
-              {/* Add new project button */}
-              <Button 
-                variant="ghost" 
-                className="w-full justify-center text-muted-foreground hover:text-foreground border-2 border-dashed border-gray-300 hover:border-gray-400 h-auto py-3"
+                ) : (
+                  <>
+                    <h4 
+                      className="font-medium text-sm text-foreground cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                      onClick={() => startEditingColumn(column)}
+                    >
+                      {column}
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {getProjectsByStatus(column).length}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => deleteColumn(column)}
+                        className="w-6 h-6 p-0 hover:bg-red-100 hover:text-red-600"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Droppable Area */}
+              <div
+                className="space-y-3 min-h-[400px]"
+                style={{ minHeight: '400px' }}
+              >
+                <SortableContext
+                  items={getProjectsByStatus(column).map(p => p.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {getProjectsByStatus(column).map((project) => (
+                    <DraggableProject key={project.id} project={project} />
+                  ))}
+                </SortableContext>
+
+                {/* Add new project button */}
+                <Button
+                  variant="ghost"
+                  className="w-full justify-center text-muted-foreground hover:text-foreground border-2 border-dashed border-gray-300 hover:border-gray-400 h-auto py-3"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar projeto
+                </Button>
+              </div>
+            </div>
+          ))}
+
+          {/* Add New Column */}
+          <div className="min-w-[280px] max-w-[280px]">
+            {showNewColumnForm ? (
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Nome da coluna..."
+                    value={newColumnName}
+                    onChange={(e) => setNewColumnName(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') addNewColumn();
+                      if (e.key === 'Escape') {
+                        setShowNewColumnForm(false);
+                        setNewColumnName("");
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={addNewColumn} className="bg-gradient-button text-white">
+                      Adicionar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setShowNewColumnForm(false);
+                        setNewColumnName("");
+                      }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                onClick={() => setShowNewColumnForm(true)}
+                className="w-full justify-center text-muted-foreground hover:text-foreground border-2 border-dashed border-gray-300 hover:border-gray-400 h-auto py-4"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Adicionar projeto
+                Adicionar coluna
               </Button>
-            </div>
+            )}
           </div>
-        ))}
-      </div>
+        </div>
+
+        {/* Drag Overlay */}
+        <DragOverlay>
+          {activeProject ? <DraggableProject project={activeProject} /> : null}
+        </DragOverlay>
+      </DndContext>
     </div>
   );
 };
