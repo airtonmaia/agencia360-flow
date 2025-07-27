@@ -20,6 +20,7 @@ interface Board {
   id: number;
   name: string;
   description: string;
+  color: string;
   projects: Project[];
   columns: string[];
 }
@@ -32,6 +33,7 @@ export const ProjectsView = () => {
       id: 1,
       name: "Projetos Clientes",
       description: "Quadro principal para projetos de clientes externos",
+      color: "bg-gradient-to-br from-blue-500 to-purple-600",
       columns: ["Backlog", "Em Progresso", "Revisão", "Concluído"],
       projects: [
         {
@@ -60,6 +62,7 @@ export const ProjectsView = () => {
       id: 2,
       name: "Projetos Internos",
       description: "Desenvolvimento interno da agência",
+      color: "bg-gradient-to-br from-purple-500 to-pink-600",
       columns: ["Ideias", "Desenvolvimento", "Testes", "Finalizado"],
       projects: [
         {
@@ -77,7 +80,19 @@ export const ProjectsView = () => {
   ]);
 
   const [newBoardName, setNewBoardName] = useState("");
+  const [newBoardColor, setNewBoardColor] = useState("bg-gradient-to-br from-blue-500 to-purple-600");
   const [showNewBoardForm, setShowNewBoardForm] = useState(false);
+  
+  const boardColors = [
+    "bg-gradient-to-br from-blue-500 to-purple-600",
+    "bg-gradient-to-br from-purple-500 to-pink-600", 
+    "bg-gradient-to-br from-green-500 to-blue-600",
+    "bg-gradient-to-br from-orange-500 to-red-600",
+    "bg-gradient-to-br from-pink-500 to-rose-600",
+    "bg-gradient-to-br from-indigo-500 to-purple-600",
+    "bg-gradient-to-br from-emerald-500 to-teal-600",
+    "bg-gradient-to-br from-amber-500 to-orange-600"
+  ];
 
   const createNewBoard = () => {
     if (newBoardName.trim()) {
@@ -85,11 +100,13 @@ export const ProjectsView = () => {
         id: boards.length + 1,
         name: newBoardName,
         description: "",
+        color: newBoardColor,
         columns: ["A Fazer", "Em Progresso", "Revisão", "Concluído"],
         projects: []
       };
       setBoards([...boards, newBoard]);
       setNewBoardName("");
+      setNewBoardColor("bg-gradient-to-br from-blue-500 to-purple-600");
       setShowNewBoardForm(false);
     }
   };
@@ -147,28 +164,51 @@ export const ProjectsView = () => {
 
         {/* New Board Form */}
         {showNewBoardForm && (
-          <Card className="p-4 border-2 border-dashed border-gray-300">
-            <div className="flex items-center gap-3">
-              <Input
-                placeholder="Nome do quadro..."
-                value={newBoardName}
-                onChange={(e) => setNewBoardName(e.target.value)}
-                className="flex-1"
-                onKeyPress={(e) => e.key === 'Enter' && createNewBoard()}
-              />
-              <Button onClick={createNewBoard} size="sm" className="bg-gradient-button text-white">
-                Criar
-              </Button>
-              <Button 
-                onClick={() => {
-                  setShowNewBoardForm(false);
-                  setNewBoardName("");
-                }} 
-                variant="outline" 
-                size="sm"
-              >
-                Cancelar
-              </Button>
+          <Card className="p-6 border-2 border-dashed border-gray-300">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Input
+                  placeholder="Nome do quadro..."
+                  value={newBoardName}
+                  onChange={(e) => setNewBoardName(e.target.value)}
+                  className="flex-1"
+                  onKeyPress={(e) => e.key === 'Enter' && createNewBoard()}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Escolha uma cor:</label>
+                <div className="flex flex-wrap gap-2">
+                  {boardColors.map((color, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setNewBoardColor(color)}
+                      className={`w-12 h-8 rounded-md ${color} border-2 transition-all ${
+                        newBoardColor === color 
+                          ? 'border-foreground scale-110' 
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Button onClick={createNewBoard} size="sm" className="bg-gradient-button text-white">
+                  Criar
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setShowNewBoardForm(false);
+                    setNewBoardName("");
+                    setNewBoardColor("bg-gradient-to-br from-blue-500 to-purple-600");
+                  }} 
+                  variant="outline" 
+                  size="sm"
+                >
+                  Cancelar
+                </Button>
+              </div>
             </div>
           </Card>
         )}
@@ -178,18 +218,20 @@ export const ProjectsView = () => {
           {boards.map((board) => (
             <Card 
               key={board.id} 
-              className="p-6 hover:shadow-lg transition-shadow cursor-pointer border border-gray-100"
+              className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border border-gray-100"
               onClick={() => openBoard(board)}
             >
-              <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2 flex-1">
-                    <h3 className="font-semibold text-lg text-foreground">{board.name}</h3>
-                    <p className="text-sm text-muted-foreground">{board.description}</p>
-                  </div>
-                  <Button variant="ghost" size="sm">
+              <div className={`h-20 ${board.color} relative`}>
+                <div className="absolute top-3 right-3">
+                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-lg text-foreground">{board.name}</h3>
+                  <p className="text-sm text-muted-foreground">{board.description}</p>
                 </div>
                 
                 <div className="flex items-center justify-between">
