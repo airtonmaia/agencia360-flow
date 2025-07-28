@@ -53,7 +53,7 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
       {/* Header */}
       <div className="p-6 border-b border-sidebar-border">
         <h1 className="text-xl font-bold text-sidebar-foreground">Agência360°</h1>
-        <p className="text-sm text-sidebar-foreground/60 mt-1">Gestão Completa</p>
+        
       </div>
 
       {/* Navigation */}
