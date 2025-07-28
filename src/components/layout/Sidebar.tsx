@@ -18,7 +18,7 @@ const menuItems = [
     subItems: [
       { id: "financial-overview", label: "Visão Geral" },
       { id: "financial-cashflow", label: "Fluxo de Caixa" },
-      { id: "financial-loans", label: "Empréstimos" },
+      { id: "financial-loans", label: "Crédito & Investimentos" },
     ]
   },
   { id: "time", label: "Produtividade", icon: Clock },

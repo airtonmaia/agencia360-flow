@@ -19,9 +19,9 @@ All colors MUST be HSL.
     --popover-foreground: 240 10% 20%;
 
     /* Purple gradient for important elements */
-    --primary: 280 50% 60%;
+    --primary: 242 94% 68%; /* Cor principal alterada para #625afa */
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 280 50% 55%;
+    --primary-hover: 242 94% 63%; /* Tom mais escuro para o hover */
 
     /* Light secondary colors */
     --secondary: 240 5% 96%;
@@ -32,8 +32,8 @@ All colors MUST be HSL.
     --muted-foreground: 240 4% 50%;
 
     /* Minimal accent */
-    --accent: 280 30% 95%;
-    --accent-foreground: 280 50% 25%;
+    --accent: 240 5% 96%; /* Alterado para um cinza mais neutro para combinar melhor */
+    --accent-foreground: 240 8% 25%;
 
     /* Status colors with some color */
     --destructive: 0 50% 50%;
@@ -44,7 +44,7 @@ All colors MUST be HSL.
     /* Minimal borders */
     --border: 240 6% 90%;
     --input: 240 6% 92%;
-    --ring: 280 50% 60%;
+    --ring: 242 94% 68%; /* Cor do anel de foco alterada para a cor primária */
 
     /* Smooth radius */
     --radius: 0.5rem;
@@ -52,19 +52,19 @@ All colors MUST be HSL.
     /* White sidebar like in reference */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 240 10% 20%;
-    --sidebar-primary: 280 50% 60%;
+    --sidebar-primary: 242 94% 68%; /* Cor primária da sidebar alterada */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 280 20% 96%;
+    --sidebar-accent: 240 5% 96%;
     --sidebar-accent-foreground: 240 8% 25%;
     --sidebar-border: 240 6% 90%;
-    --sidebar-ring: 280 50% 60%;
+    --sidebar-ring: 242 94% 68%;
 
     /* Beautiful gradients for important elements */
-    --gradient-primary: linear-gradient(135deg, hsl(280 60% 60%), hsl(320 70% 65%), hsl(30 80% 65%));
-    --gradient-button: linear-gradient(135deg, hsl(280 55% 58%), hsl(320 65% 62%));
-    --gradient-accent: linear-gradient(135deg, hsl(280 40% 92%), hsl(320 30% 95%));
+    --gradient-primary: linear-gradient(135deg, hsl(242 94% 68%), hsl(250 80% 72%));
+    --gradient-button: linear-gradient(135deg, hsl(242 94% 68%), hsl(250 80% 72%));
+    --gradient-accent: linear-gradient(135deg, hsl(240 5% 96%), hsl(240 5% 98%));
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 99%), hsl(240 3% 97%));
-    --shadow-soft: 0 2px 8px hsl(280 30% 70% / 0.15);
+    --shadow-soft: 0 4px 12px hsl(242 94% 68% / 0.15);
     --shadow-card: 0 1px 3px hsl(240 10% 70% / 0.08);
   }
 
@@ -78,7 +78,7 @@ All colors MUST be HSL.
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 242 94% 75%; /* Versão mais clara da cor primária para o modo escuro */
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -95,15 +95,15 @@ All colors MUST be HSL.
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 242 94% 75%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary: 242 94% 75%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 242 94% 75%;
   }
 }
 
