@@ -1,4 +1,5 @@
 import { Plus, Filter, Search, MoreHorizontal, Edit, Trash2, ArrowLeft, X, Users, Calendar, BarChart3, CheckCircle2, Clock } from "lucide-react";
+import { CreateProjectForm } from "./CreateProjectForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -683,10 +684,40 @@ export const ProjectsView = () => {
             <p className="text-muted-foreground text-lg">{selectedBoard?.description || "Quadro de projetos"}</p>
           </div>
         </div>
-        <Button size="lg" className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg">
-          <Plus className="w-5 h-5 mr-2" />
-          Novo Projeto
-        </Button>
+        <CreateProjectForm
+          onSubmit={(data) => {
+            // Função para criar novo projeto
+            if (!selectedBoard) return;
+            
+            const newProject: Project = {
+              id: Date.now(),
+              name: data.name,
+              status: data.status,
+              priority: "Média",
+              dueDate: `${Math.ceil((data.dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} dias restantes`,
+              progress: 0,
+              client: data.client,
+              team: ["Você"]
+            };
+
+            const updatedBoard = {
+              ...selectedBoard,
+              projects: [...selectedBoard.projects, newProject]
+            };
+
+            setSelectedBoard(updatedBoard);
+            
+            const updatedBoards = boards.map(board =>
+              board.id === selectedBoard.id ? updatedBoard : board
+            );
+            setBoards(updatedBoards);
+          }}
+        >
+          <Button size="lg" className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg">
+            <Plus className="w-5 h-5 mr-2" />
+            Novo Projeto
+          </Button>
+        </CreateProjectForm>
       </div>
 
       {/* Filters and Search */}
