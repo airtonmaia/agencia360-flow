@@ -1,8 +1,11 @@
-import { Plus, Filter, Search, MoreHorizontal, Edit, Trash2, ArrowLeft, X } from "lucide-react";
+import { Plus, Filter, Search, MoreHorizontal, Edit, Trash2, ArrowLeft, X, Users, Calendar, BarChart3, CheckCircle2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
 import {
   DndContext,
@@ -74,56 +77,66 @@ const DraggableProject = ({ project }: { project: Project }) => {
       style={style}
       {...attributes}
       {...listeners}
-      className={`p-4 bg-white transition-shadow cursor-grab active:cursor-grabbing ${
-        isDragging ? 'opacity-50 shadow-lg' : 'hover:shadow-md'
-      }`}
+      className={`group cursor-grab active:cursor-grabbing transition-all duration-200 ${
+        isDragging ? 'opacity-50 shadow-2xl scale-105' : 'hover:shadow-lg hover:-translate-y-1'
+      } border-0 shadow-sm bg-card`}
     >
-      <div className="space-y-3">
-        <h5 className="font-medium text-sm text-foreground line-clamp-2">
-          {project.name}
-        </h5>
-        
-        <div className="flex items-center gap-2">
-          <Badge className={`${getPriorityColor(project.priority)} text-xs`}>
-            {project.priority}
-          </Badge>
-        </div>
-        
-        <div className="space-y-1">
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">Progresso</span>
-            <span className="text-xs font-medium">{project.progress}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
-            <div 
-              className="bg-gradient-button h-1.5 rounded-full transition-all duration-300"
-              style={{ width: `${project.progress}%` }}
-            ></div>
+      <CardContent className="p-4 space-y-4">
+        <div className="space-y-2">
+          <h5 className="font-semibold text-sm text-card-foreground line-clamp-2 leading-tight">
+            {project.name}
+          </h5>
+          
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className={`${getPriorityColor(project.priority)} text-xs font-medium px-2 py-1`}>
+              {project.priority}
+            </Badge>
+            <Badge variant="outline" className="text-xs px-2 py-1">
+              {project.client}
+            </Badge>
           </div>
         </div>
         
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">{project.client}</span>
-          <span className="text-muted-foreground">{project.dueDate}</span>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <BarChart3 className="w-3 h-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground font-medium">Progresso</span>
+            </div>
+            <span className="text-xs font-semibold text-primary">{project.progress}%</span>
+          </div>
+          <Progress value={project.progress} className="h-2" />
         </div>
         
-        <div className="flex -space-x-1">
-          {project.team.slice(0, 3).map((member, idx) => (
-            <div 
-              key={idx}
-              className="w-6 h-6 rounded-full bg-gradient-button flex items-center justify-center text-white text-xs font-medium border-2 border-white"
-              title={member}
-            >
-              {member.charAt(0)}
+        <Separator className="my-3" />
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="w-3 h-3 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">{project.dueDate}</span>
+          </div>
+          
+          <div className="flex items-center gap-1.5">
+            <Users className="w-3 h-3 text-muted-foreground" />
+            <div className="flex -space-x-2">
+              {project.team.slice(0, 3).map((member, idx) => (
+                <Avatar key={idx} className="w-6 h-6 border-2 border-background">
+                  <AvatarFallback className="text-xs font-semibold bg-primary text-primary-foreground">
+                    {member.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+              ))}
+              {project.team.length > 3 && (
+                <Avatar className="w-6 h-6 border-2 border-background">
+                  <AvatarFallback className="text-xs font-semibold bg-muted text-muted-foreground">
+                    +{project.team.length - 3}
+                  </AvatarFallback>
+                </Avatar>
+              )}
             </div>
-          ))}
-          {project.team.length > 3 && (
-            <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs font-medium border-2 border-white">
-              +{project.team.length - 3}
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 };
@@ -167,46 +180,45 @@ const DraggableColumn = ({
   };
 
   return (
-    <div
+    <Card
       ref={setNodeRef}
       style={style}
-      className={`bg-gray-50 rounded-lg p-4 min-w-[280px] max-w-[280px] ${
-        isDragging ? 'opacity-50' : ''
-      }`}
+      className={`min-w-[300px] max-w-[300px] transition-all duration-200 ${
+        isDragging ? 'opacity-50 scale-105' : ''
+      } bg-muted/30 border-muted`}
     >
-      {/* Column Header */}
-      <div className="flex items-center justify-between mb-4">
+      <CardHeader className="pb-3">
         {editingColumn === column ? (
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center gap-2">
             <Input
               value={editingColumnValue}
               onChange={(e) => setEditingColumnValue(e.target.value)}
-              className="text-sm font-medium h-8"
+              className="font-semibold h-8"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') saveColumnEdit();
                 if (e.key === 'Escape') cancelColumnEdit();
               }}
               autoFocus
             />
-            <Button size="sm" variant="ghost" onClick={saveColumnEdit}>
-              ✓
+            <Button size="sm" variant="ghost" onClick={saveColumnEdit} className="h-8 w-8 p-0">
+              <CheckCircle2 className="w-4 h-4 text-green-600" />
             </Button>
-            <Button size="sm" variant="ghost" onClick={cancelColumnEdit}>
-              <X className="w-4 h-4" />
+            <Button size="sm" variant="ghost" onClick={cancelColumnEdit} className="h-8 w-8 p-0">
+              <X className="w-4 h-4 text-muted-foreground" />
             </Button>
           </div>
         ) : (
-          <>
-            <h4 
+          <div className="flex items-center justify-between">
+            <CardTitle 
               {...attributes}
               {...listeners}
-              className="font-medium text-sm text-foreground cursor-grab active:cursor-grabbing hover:bg-gray-100 px-2 py-1 rounded flex-1"
+              className="text-sm font-semibold cursor-grab active:cursor-grabbing hover:bg-accent hover:text-accent-foreground px-2 py-1 rounded-md transition-colors flex-1"
               onDoubleClick={() => startEditingColumn(column)}
             >
               {column}
-            </h4>
+            </CardTitle>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs font-medium">
                 {getProjectsByStatus(column).length}
               </Badge>
               <Button
@@ -216,40 +228,41 @@ const DraggableColumn = ({
                   e.stopPropagation();
                   deleteColumn(column);
                 }}
-                className="w-6 h-6 p-0 hover:bg-red-100 hover:text-red-600"
+                className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
               >
                 <Trash2 className="w-3 h-3" />
               </Button>
             </div>
-          </>
+          </div>
         )}
-      </div>
+      </CardHeader>
 
-      {/* Droppable Area */}
-      <div
-        id={column}
-        className="space-y-3 min-h-[400px]"
-        style={{ minHeight: '400px' }}
-      >
-        <SortableContext
-          items={getProjectsByStatus(column).map(p => p.id)}
-          strategy={verticalListSortingStrategy}
+      <CardContent className="space-y-3">
+        <div
+          id={column}
+          className="space-y-3 min-h-[400px]"
+          style={{ minHeight: '400px' }}
         >
-          {getProjectsByStatus(column).map((project) => (
-            <DraggableProject key={project.id} project={project} />
-          ))}
-        </SortableContext>
+          <SortableContext
+            items={getProjectsByStatus(column).map(p => p.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {getProjectsByStatus(column).map((project) => (
+              <DraggableProject key={project.id} project={project} />
+            ))}
+          </SortableContext>
 
-        {/* Add new project button */}
-        <Button
-          variant="ghost"
-          className="w-full justify-center text-muted-foreground hover:text-foreground border-2 border-dashed border-gray-300 hover:border-gray-400 h-auto py-3"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Adicionar projeto
-        </Button>
-      </div>
-    </div>
+          {/* Add new project button */}
+          <Button
+            variant="ghost"
+            className="w-full justify-center text-muted-foreground hover:text-foreground border-2 border-dashed border-border hover:border-primary/50 h-auto py-6 rounded-lg hover:bg-accent/50 transition-all"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Adicionar projeto
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -518,53 +531,60 @@ export const ProjectsView = () => {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Quadros de Projetos</h1>
-            <p className="text-muted-foreground">Organize seus projetos em quadros como no Trello Pro</p>
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-foreground">Quadros de Projetos</h1>
+            <p className="text-muted-foreground text-lg">Organize seus projetos em quadros como no Trello Pro</p>
           </div>
           <Button 
-            className="bg-gradient-button hover:opacity-90 text-white border-0"
+            size="lg"
+            className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg"
             onClick={() => setShowNewBoardForm(true)}
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-5 h-5 mr-2" />
             Novo Quadro
           </Button>
         </div>
 
         {/* New Board Form */}
         {showNewBoardForm && (
-          <Card className="p-6 border-2 border-dashed border-gray-300">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
+          <Card className="border-2 border-dashed border-primary/30 bg-accent/20">
+            <CardHeader>
+              <CardTitle className="text-lg">Criar Novo Quadro</CardTitle>
+              <CardDescription>Configure seu novo quadro de projetos</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Nome do quadro</label>
                 <Input
-                  placeholder="Nome do quadro..."
+                  placeholder="Ex: Projetos Clientes, Marketing, Desenvolvimento..."
                   value={newBoardName}
                   onChange={(e) => setNewBoardName(e.target.value)}
-                  className="flex-1"
+                  className="text-base"
                   onKeyPress={(e) => e.key === 'Enter' && createNewBoard()}
                 />
               </div>
               
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Escolha uma cor:</label>
-                <div className="flex flex-wrap gap-2">
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-foreground">Escolha uma cor</label>
+                <div className="grid grid-cols-4 gap-3">
                   {boardColors.map((color, index) => (
                     <button
                       key={index}
                       onClick={() => setNewBoardColor(color)}
-                      className={`w-12 h-8 rounded-md ${color} border-2 transition-all ${
+                      className={`h-12 rounded-lg ${color} border-2 transition-all duration-200 hover:scale-105 ${
                         newBoardColor === color 
-                          ? 'border-foreground scale-110' 
-                          : 'border-gray-300 hover:border-gray-400'
+                          ? 'border-foreground shadow-lg scale-105' 
+                          : 'border-border hover:border-primary/50'
                       }`}
                     />
                   ))}
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
-                <Button onClick={createNewBoard} size="sm" className="bg-gradient-button text-white">
-                  Criar
+              <div className="flex items-center gap-3 pt-2">
+                <Button onClick={createNewBoard} className="bg-gradient-to-r from-primary to-primary/80">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar Quadro
                 </Button>
                 <Button 
                   onClick={() => {
@@ -572,13 +592,12 @@ export const ProjectsView = () => {
                     setNewBoardName("");
                     setNewBoardColor("bg-gradient-to-br from-blue-500 to-purple-600");
                   }} 
-                  variant="outline" 
-                  size="sm"
+                  variant="outline"
                 >
                   Cancelar
                 </Button>
               </div>
-            </div>
+            </CardContent>
           </Card>
         )}
 
@@ -587,43 +606,57 @@ export const ProjectsView = () => {
           {boards.map((board) => (
             <Card 
               key={board.id} 
-              className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border border-gray-100"
+              className="group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md hover:-translate-y-2"
               onClick={() => openBoard(board)}
             >
-              <div className={`h-20 ${board.color} relative`}>
-                <div className="absolute top-3 right-3">
-                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+              <div className={`h-24 ${board.color} relative`}>
+                <div className="absolute inset-0 bg-gradient-to-br from-black/0 to-black/20" />
+                <div className="absolute top-4 right-4">
+                  <Button variant="ghost" size="sm" className="text-white/80 hover:bg-white/20 hover:text-white">
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
-              <div className="p-6 space-y-4">
+              <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
-                  <h3 className="font-semibold text-lg text-foreground">{board.name}</h3>
-                  <p className="text-sm text-muted-foreground">{board.description}</p>
+                  <CardTitle className="text-xl text-foreground group-hover:text-primary transition-colors">
+                    {board.name}
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    {board.description || "Sem descrição"}
+                  </CardDescription>
                 </div>
                 
+                <Separator />
+                
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    {board.projects.length} projeto{board.projects.length !== 1 ? 's' : ''}
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground font-medium">
+                      {board.projects.length} projeto{board.projects.length !== 1 ? 's' : ''}
+                    </span>
                   </div>
-                  <div className="flex -space-x-2">
-                    {board.projects.slice(0, 3).map((project, idx) => (
-                      <div 
-                        key={idx}
-                        className="w-8 h-8 rounded-full bg-gradient-button flex items-center justify-center text-white text-xs font-medium border-2 border-white"
-                      >
-                        {project.name.charAt(0)}
-                      </div>
-                    ))}
-                    {board.projects.length > 3 && (
-                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-medium border-2 border-white">
-                        +{board.projects.length - 3}
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-muted-foreground" />
+                    <div className="flex -space-x-2">
+                      {board.projects.slice(0, 3).map((project, idx) => (
+                        <Avatar key={idx} className="w-8 h-8 border-2 border-background">
+                          <AvatarFallback className="text-xs font-semibold bg-primary text-primary-foreground">
+                            {project.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
+                      {board.projects.length > 3 && (
+                        <Avatar className="w-8 h-8 border-2 border-background">
+                          <AvatarFallback className="text-xs font-semibold bg-muted text-muted-foreground">
+                            +{board.projects.length - 3}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </CardContent>
             </Card>
           ))}
         </div>
@@ -638,37 +671,42 @@ export const ProjectsView = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             onClick={() => setCurrentView('boards')}
-            className="p-2"
+            className="px-3"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{selectedBoard?.name}</h1>
-            <p className="text-muted-foreground">{selectedBoard?.description}</p>
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-foreground">{selectedBoard?.name}</h1>
+            <p className="text-muted-foreground text-lg">{selectedBoard?.description || "Quadro de projetos"}</p>
           </div>
         </div>
-        <Button className="bg-gradient-button hover:opacity-90 text-white border-0">
-          <Plus className="w-4 h-4 mr-2" />
+        <Button size="lg" className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg">
+          <Plus className="w-5 h-5 mr-2" />
           Novo Projeto
         </Button>
       </div>
 
       {/* Filters and Search */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Buscar projetos..."
-            className="pl-10"
-          />
-        </div>
-        <Button variant="outline">
-          <Filter className="w-4 h-4 mr-2" />
-          Filtros
-        </Button>
-      </div>
+      <Card className="bg-card/50 border-muted">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                placeholder="Buscar projetos..."
+                className="pl-10 bg-background"
+              />
+            </div>
+            <Button variant="outline" className="hover:bg-accent">
+              <Filter className="w-4 h-4 mr-2" />
+              Filtros
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Kanban Board */}
       <DndContext
@@ -699,10 +737,13 @@ export const ProjectsView = () => {
           </SortableContext>
 
           {/* Add New Column */}
-          <div className="min-w-[280px] max-w-[280px]">
+          <div className="min-w-[300px] max-w-[300px]">
             {showNewColumnForm ? (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="space-y-3">
+              <Card className="bg-muted/30 border-muted">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">Nova Coluna</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   <Input
                     placeholder="Nome da coluna..."
                     value={newColumnName}
@@ -717,7 +758,8 @@ export const ProjectsView = () => {
                     autoFocus
                   />
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={addNewColumn} className="bg-gradient-button text-white">
+                    <Button size="sm" onClick={addNewColumn} className="bg-gradient-to-r from-primary to-primary/80">
+                      <Plus className="w-3 h-3 mr-1" />
                       Adicionar
                     </Button>
                     <Button
@@ -731,15 +773,15 @@ export const ProjectsView = () => {
                       Cancelar
                     </Button>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ) : (
               <Button
                 variant="ghost"
                 onClick={() => setShowNewColumnForm(true)}
-                className="w-full justify-center text-muted-foreground hover:text-foreground border-2 border-dashed border-gray-300 hover:border-gray-400 h-auto py-4"
+                className="w-full h-auto py-8 justify-center text-muted-foreground hover:text-foreground border-2 border-dashed border-border hover:border-primary/50 rounded-lg hover:bg-accent/50 transition-all"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-5 h-5 mr-2" />
                 Adicionar coluna
               </Button>
             )}
