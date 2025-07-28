@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, FolderKanban, CreditCard, Clock, Settings, HelpCircle, ChevronDown, ChevronRight, BarChart3, TrendingUp, Wallet } from "lucide-react";
+import { LayoutDashboard, Users, FolderKanban, CreditCard, Clock, Settings, HelpCircle, ChevronRight, BarChart3, TrendingUp, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -16,9 +16,9 @@ const menuItems = [
     label: "Financeiro", 
     icon: CreditCard,
     subItems: [
-      { id: "financial-overview", label: "Visão Geral", icon: BarChart3 },
-      { id: "financial-cashflow", label: "Fluxo de Caixa", icon: TrendingUp },
-      { id: "financial-loans", label: "Empréstimos", icon: Wallet },
+      { id: "financial-overview", label: "Visão Geral" },
+      { id: "financial-cashflow", label: "Fluxo de Caixa" },
+      { id: "financial-loans", label: "Empréstimos" },
     ]
   },
   { id: "time", label: "Produtividade", icon: Clock },
@@ -58,7 +58,7 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
 
       {/* Navigation */}
       <div className="flex-1 py-6">
-        <nav className="space-y-2 px-4">
+        <nav className="space-y-1 px-4">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const hasSubItems = item.subItems && item.subItems.length > 0;
@@ -71,52 +71,46 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
                   onClick={() => {
                     if (hasSubItems) {
                       toggleExpanded(item.id);
-                      if (!isExpanded) {
-                        onTabChange('financial-overview'); // Default to first sub-item
+                      if (!isActive) {
+                        onTabChange(item.subItems?.[0]?.id || item.id);
                       }
                     } else {
                       onTabChange(item.id);
                     }
                   }}
                   className={cn(
-                    "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200",
-                    "hover:bg-sidebar-accent",
+                    "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200 text-sm font-medium",
+                    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     isActive
-                      ? "bg-gradient-button text-white shadow-sm"
-                      : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                      ? "text-primary font-semibold"
+                      : "text-sidebar-foreground/70"
                   )}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium flex-1">{item.label}</span>
+                  <Icon className={cn("w-5 h-5", isActive ? "text-primary" : "text-sidebar-foreground/70")} />
+                  <span className="flex-1">{item.label}</span>
                   {hasSubItems && (
-                    <div className="transition-transform duration-200">
-                      {isExpanded ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )}
+                    <div className={cn("transition-transform duration-200", isExpanded && "rotate-90")}>
+                      <ChevronRight className="w-4 h-4" />
                     </div>
                   )}
                 </button>
 
                 {/* Sub-items */}
                 {hasSubItems && isExpanded && (
-                  <div className="ml-4 mt-2 space-y-1">
+                  <div className="pl-8 pt-1 space-y-1">
                     {item.subItems.map((subItem) => {
-                      const SubIcon = subItem.icon;
                       return (
                         <button
                           key={subItem.id}
                           onClick={() => onTabChange(subItem.id)}
                           className={cn(
                             "w-full flex items-center gap-3 px-3 py-2 rounded-md text-left transition-all duration-200 text-sm",
-                            "hover:bg-sidebar-accent",
+                            "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                             activeTab === subItem.id
-                              ? "bg-gradient-button text-white shadow-sm"
-                              : "text-sidebar-foreground/80 hover:text-sidebar-accent-foreground"
+                              ? "text-primary font-semibold"
+                              : "text-sidebar-foreground/60"
                           )}
                         >
-                          <SubIcon className="w-4 h-4" />
                           <span>{subItem.label}</span>
                         </button>
                       );
@@ -131,7 +125,7 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
 
       {/* Bottom section */}
       <div className="p-4 border-t border-sidebar-border">
-        <div className="space-y-2">
+        <div className="space-y-1">
           {bottomItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -139,12 +133,12 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
                 className={cn(
-                  "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200",
-                  "hover:bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                  "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200 text-sm font-medium",
+                  "hover:bg-sidebar-accent text-sidebar-foreground/70 hover:text-sidebar-accent-foreground"
                 )}
               >
                 <Icon className="w-5 h-5" />
-                <span className="text-sm">{item.label}</span>
+                <span>{item.label}</span>
               </button>
             );
           })}
