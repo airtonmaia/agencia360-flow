@@ -20,14 +20,14 @@ export const MetricCard = ({
   iconColor = "text-primary"
 }: MetricCardProps) => {
   return (
-    <Card className="p-6 bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 group">
+    <Card className="p-6">
       <div className="flex items-start justify-between">
-        <div className="space-y-3">
-          <p className="text-sm font-medium text-muted-foreground tracking-wide">{title}</p>
-          <p className="text-3xl font-bold text-foreground tracking-tight">{value}</p>
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-2xl font-bold text-foreground">{value}</p>
           {change && (
             <p className={cn(
-              "text-sm font-medium tracking-wide",
+              "text-sm font-medium",
               changeType === "positive" && "text-emerald-600",
               changeType === "negative" && "text-red-500",
               changeType === "neutral" && "text-muted-foreground"
@@ -36,11 +36,8 @@ export const MetricCard = ({
             </p>
           )}
         </div>
-        <div className={cn(
-          "p-3 rounded-xl bg-primary/10 group-hover:bg-primary/15 transition-colors duration-300",
-          iconColor
-        )}>
-          <Icon className="w-6 h-6 text-primary" />
+        <div className="p-2 rounded-lg bg-muted/50">
+          <Icon className={cn("w-5 h-5", iconColor)} />
         </div>
       </div>
     </Card>
